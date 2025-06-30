@@ -5,6 +5,9 @@ yarn.lock
 
 #assets
 public
+public/driver-assets
+public/profile-images
+public/documents
 
 # Environment variables
 .env
