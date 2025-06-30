@@ -25,7 +25,18 @@ const generateToken = (user) => {
   );
 };
 
-const sendVerificationCode = async (phoneNumber) => {
+const generateContextToken = (phoneNumber) => {
+  const payload = { phoneNumber };
+  const secret = process.env.JWT_RESET_SECRET || process.env.JWT_SECRET;
+  return jwt.sign(payload, secret, { expiresIn: '10m' });
+};
+
+// REGISTER FLOW
+const sendCodeForRegister = async (phoneNumber) => {
+  // Check if passenger already exists
+  const existing = await Passenger.findOne({ phoneNumber });
+  if (existing) throw new AppError('Passenger already exists', 400);
+
   await Verification.deleteMany({ phoneNumber, userType: 'passenger' });
   const code = generateOtp();
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
@@ -36,14 +47,16 @@ const sendVerificationCode = async (phoneNumber) => {
     expiresAt,
   });
 
+  const contextToken = generateContextToken(phoneNumber);
   return {
     phoneNumber,
     expiresAt,
     sent: true,
+    contextToken,
   };
 };
 
-const verifyCodeOnly = async (phoneNumber, code) => {
+const verifyCodeForRegister = async (phoneNumber, code) => {
   const record = await Verification.findOne({
     phoneNumber,
     userType: 'passenger',
@@ -55,10 +68,12 @@ const verifyCodeOnly = async (phoneNumber, code) => {
   }
   record.verified = true;
   await record.save();
-  return { phoneNumber, verified: true };
+
+  const contextToken = generateContextToken(phoneNumber);
+  return { phoneNumber, verified: true, contextToken };
 };
 
-const createAccountWithPassword = async (
+const setPasswordForRegister = async (
   phoneNumber,
   password,
   confirmPassword,
@@ -86,6 +101,73 @@ const createAccountWithPassword = async (
   return { passenger, token: generateToken(passenger) };
 };
 
+// FORGOT PASSWORD FLOW
+const sendCodeForForgotPassword = async (phoneNumber) => {
+  // Check if passenger exists
+  const passenger = await Passenger.findOne({ phoneNumber });
+  if (!passenger) throw new AppError('Passenger not found', 404);
+
+  await Verification.deleteMany({ phoneNumber, userType: 'passenger' });
+  const code = generateOtp();
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  await Verification.create({
+    phoneNumber,
+    code,
+    userType: 'passenger',
+    expiresAt,
+  });
+
+  const contextToken = generateContextToken(phoneNumber);
+  return {
+    phoneNumber,
+    expiresAt,
+    sent: true,
+    contextToken,
+  };
+};
+
+const verifyCodeForForgotPassword = async (phoneNumber, code) => {
+  const record = await Verification.findOne({
+    phoneNumber,
+    userType: 'passenger',
+    expiresAt: { $gt: new Date() },
+  });
+  if (!record) throw new AppError('Invalid or expired code', 400);
+  if (!compareOtp(code, record.code)) {
+    throw new AppError('Invalid or expired code', 400);
+  }
+  record.verified = true;
+  await record.save();
+
+  const contextToken = generateContextToken(phoneNumber);
+  return { phoneNumber, verified: true, contextToken };
+};
+
+const resetPasswordWithContextToken = async (
+  phoneNumber,
+  password,
+  confirmPassword,
+) => {
+  if (password !== confirmPassword)
+    throw new AppError('Passwords do not match', 400);
+
+  const verification = await Verification.findOne({
+    phoneNumber,
+    userType: 'passenger',
+    verified: true,
+  });
+  if (!verification) throw new AppError('Phone number not verified', 400);
+
+  const passenger = await Passenger.findOne({ phoneNumber });
+  if (!passenger) throw new AppError('Passenger not found', 404);
+
+  passenger.password = await hashPassword(password);
+  await passenger.save();
+  await Verification.deleteMany({ phoneNumber, userType: 'passenger' });
+  return true;
+};
+
+// EXISTING FUNCTIONS
 const login = async (phoneNumber, password) => {
   const passenger = await Passenger.findOne({ phoneNumber }).select(
     '+password',
@@ -105,58 +187,16 @@ const deleteAccount = async (userId) => {
   return { success: true };
 };
 
-const resetPasswordWithOtp = async (
-  phoneNumber,
-  code,
-  password,
-  confirmPassword,
-) => {
-  if (password !== confirmPassword)
-    throw new AppError('Passwords do not match', 400);
-  const record = await Verification.findOne({
-    phoneNumber,
-    userType: 'passenger',
-    expiresAt: { $gt: new Date() },
-    code,
-  });
-  if (!record) throw new AppError('Invalid or expired code', 400);
-  const passenger = await Passenger.findOne({ phoneNumber });
-  if (!passenger) throw new AppError('Passenger not found', 404);
-  passenger.password = await hashPassword(password);
-  await passenger.save();
-  await Verification.deleteMany({ phoneNumber, userType: 'passenger' });
-  return true;
-};
-
-const generateResetToken = (phoneNumber) => {
-  const payload = { phoneNumber };
-  const secret = process.env.JWT_RESET_SECRET || process.env.JWT_SECRET;
-  return jwt.sign(payload, secret, { expiresIn: '10m' });
-};
-
-const resetPasswordWithToken = async (
-  phoneNumber,
-  password,
-  confirmPassword,
-) => {
-  if (password !== confirmPassword)
-    throw new AppError('Passwords do not match', 400);
-  const passenger = await Passenger.findOne({ phoneNumber });
-  if (!passenger) throw new AppError('Passenger not found', 404);
-  passenger.password = await hashPassword(password);
-  await passenger.save();
-  return true;
-};
-
 module.exports = {
-  sendVerificationCode,
-  verifyCodeOnly,
-  createAccountWithPassword,
+  sendCodeForRegister,
+  verifyCodeForRegister,
+  setPasswordForRegister,
+  sendCodeForForgotPassword,
+  verifyCodeForForgotPassword,
+  resetPasswordWithContextToken,
   login,
   logout,
   deleteAccount,
   generateToken,
-  resetPasswordWithOtp,
-  generateResetToken,
-  resetPasswordWithToken,
+  generateContextToken,
 };
