@@ -79,6 +79,27 @@ const createAccountWithPassword = async (
   return { driver, token: generateToken(driver) };
 };
 
+const createAccountWithToken = async (
+  phoneNumber,
+  password,
+  confirmPassword,
+  additionalData = {},
+) => {
+  if (password !== confirmPassword)
+    throw new AppError('Passwords do not match', 400);
+  let existing = await Driver.findOne({ phoneNumber });
+  if (existing) throw new AppError('Driver already exists', 400);
+  const hashed = await hashPassword(password);
+  const driver = await Driver.create({
+    phoneNumber,
+    password: hashed,
+    userType: 'driver',
+    isVerified: true,
+    ...additionalData,
+  });
+  return { driver, token: generateToken(driver) };
+};
+
 const login = async (phoneNumber, password) => {
   const driver = await Driver.findOne({ phoneNumber }).select('+password');
   if (!driver) throw new AppError('Driver not found', 404);
@@ -137,6 +158,7 @@ module.exports = {
   sendVerificationCode,
   verifyCodeOnly,
   createAccountWithPassword,
+  createAccountWithToken,
   login,
   logout,
   deleteAccount,
