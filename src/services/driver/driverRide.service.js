@@ -4,7 +4,6 @@ const AppError = require('../../utils/AppError');
 
 const fetchAvailableRides = async (driverId) => {
   try {
-    // Get driver's vehicle type
     const driver = await Driver.findById(driverId);
     if (!driver || !driver.vehicle || !driver.vehicle.type) {
       throw new AppError('Driver vehicle information not found', 400);
@@ -12,7 +11,6 @@ const fetchAvailableRides = async (driverId) => {
 
     const driverVehicleType = driver.vehicle.type;
 
-    // Vehicle type mapping
     const vehicleTypeMapping = {
       car: 'mini car',
       ac: 'AC',
@@ -28,13 +26,14 @@ const fetchAvailableRides = async (driverId) => {
     if (driverVehicleType === 'tourbus') {
       query.isGroupRide = true;
       query.groupAdmin = { $exists: true, $ne: null };
+      query.vehicleType = 'tourbus';
     } else {
       const passengerVehicleType = vehicleTypeMapping[driverVehicleType];
       if (!passengerVehicleType) {
         throw new AppError('Invalid vehicle type mapping', 400);
       }
       query.vehicleType = passengerVehicleType;
-      query.isGroupRide = false;
+      query.isGroupRide = { $ne: true };
     }
 
     return await Ride.find(query);

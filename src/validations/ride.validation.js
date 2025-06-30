@@ -21,11 +21,9 @@ const createRideRequestSchema = Joi.object({
         'Invalid vehicle type. Must be one of: mini car, AC, bike, auto',
     }),
 
-  pickUpLocation: locationSchema
-    .required()
-    .messages({
-      'any.required': 'Pick up location is required',
-    }),
+  pickUpLocation: locationSchema.required().messages({
+    'any.required': 'Pick up location is required',
+  }),
 
   dropOffLocations: Joi.array()
     .items(locationSchema)
@@ -54,7 +52,9 @@ const acceptRideSchema = Joi.object({
 const availableRidesQuerySchema = Joi.object({
   limit: Joi.number().integer().min(1).max(100).default(10),
   page: Joi.number().integer().min(1).default(1),
-  vehicleType: Joi.string().valid('CAR', 'BIKE', 'AUTO', 'AC').uppercase(),
+  vehicleType: Joi.string()
+    .valid('CAR', 'BIKE', 'AUTO', 'AC', 'TOURBUS')
+    .uppercase(),
   maxDistance: Joi.number().min(0).default(100000),
 }).default({});
 
