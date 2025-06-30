@@ -4,10 +4,7 @@ package-lock.json
 yarn.lock
 
 #assets
-public
-public/driver-assets
-public/profile-images
-public/documents
+public/
 
 # Environment variables
 .env

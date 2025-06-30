@@ -25,22 +25,24 @@ const rideSchema = new mongoose.Schema({
       required: true,
     },
   },
-  dropOffLocations: [{
-    type: {
-      type: String,
-      enum: ['Point'],
-      default: 'Point',
-      required: true,
+  dropOffLocations: [
+    {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
     },
-    coordinates: {
-      type: [Number],
-      required: true,
-    },
-  }],
+  ],
   vehicleType: {
     type: String,
     required: true,
-    enum: ['mini car', 'AC', 'bike', 'auto'],
+    enum: ['tourbus'],
   },
   fareAmount: {
     type: Number,
