@@ -6,7 +6,7 @@ const logger = require('../../../../utils/logger');
 
 const getAvailableRides = async (req, res, next) => {
   try {
-    const { vehicleType, maxDistance, limit, page } = req.query;
+    const { vehicleType, limit, page } = req.query;
     const driverId = req.user._id;
 
     const now = new Date();
@@ -31,7 +31,6 @@ const getAvailableRides = async (req, res, next) => {
     next(new AppError('Server error', StatusCodes.INTERNAL_SERVER_ERROR));
   }
 };
-
 const getRideHistory = async (req, res, next) => {
   try {
     const driverId = req.user._id;
