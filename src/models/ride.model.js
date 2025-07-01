@@ -42,7 +42,7 @@ const rideSchema = new mongoose.Schema({
   vehicleType: {
     type: String,
     required: true,
-    enum: ['tourbus'],
+    enum: ['mini car', 'ac car', 'bike', 'auto', 'tourbus'],
   },
   fareAmount: {
     type: Number,
@@ -96,7 +96,7 @@ const rideSchema = new mongoose.Schema({
   },
   groupAdmin: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Passenger',
     default: null,
   },
 });

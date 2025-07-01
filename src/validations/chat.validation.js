@@ -20,7 +20,9 @@ const onboardingSchemas = {
   }),
 
   updateVehicleDetails: Joi.object({
-    type: Joi.string().valid('car', 'ac', 'auto', 'bike', 'tourbus').required(),
+    type: Joi.string()
+      .valid('mini car', 'ac car', 'bike', 'auto', 'tourbus')
+      .required(),
     brand: Joi.string().trim().required(),
     name: Joi.string().trim().required(),
     numberPlate: Joi.string().trim().required(),

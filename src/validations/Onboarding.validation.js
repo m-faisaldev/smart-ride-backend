@@ -19,7 +19,7 @@ const updateDriverDetailsSchema = Joi.object({
 
 const updateVehicleDetailsSchema = Joi.object({
   type: Joi.string()
-    .valid('car', 'ac', 'auto', 'bike', 'tourbus')
+    .valid('mini car', 'ac car', 'bike', 'auto', 'tourbus')
     .required()
     .messages({ 'any.only': 'Invalid vehicle type' }),
 
