@@ -2,17 +2,73 @@
 
 A Node.js backend for a ride-hailing platform supporting drivers, passengers, chat, group rides, and vehicle onboarding. Built with Express, MongoDB, and modular service architecture.
 
-## Features
+---
 
-- **Driver & Passenger Authentication**: Secure login, registration, and onboarding for both drivers and passengers.
-- **Vehicle Onboarding**: Drivers can register and update vehicle details (supports mini car, ac car, bike, auto, tourbus).
-- **Ride Management**: Book, accept, reject, and manage rides for both individual and group rides.
-- **Group Rides**: Special support for group rides, especially for tourbus drivers.
-- **Chat System**: Real-time chat between drivers and passengers, including group chat.
-- **OTP Verification**: Secure phone number verification using OTP.
-- **File Uploads**: Upload and manage driver documents, profile images, and vehicle assets.
-- **Validation & Error Handling**: Robust request validation and centralized error handling.
-- **Logging**: Application logging for debugging and monitoring.
+## What This Project Does
+
+This backend powers a smart ride-hailing platform with:
+
+- **Driver onboarding and vehicle registration** (including support for tourbus and group rides)
+- **Passenger onboarding and authentication**
+- **Ride creation, searching, and management** (pending, offered, accepted, rejected, completed, cancelled, expired)
+- **Group ride logic** (especially for tourbus drivers)
+- **Real-time chat and group chat** between drivers and passengers
+- **OTP-based phone verification**
+- **File uploads** for driver documents and profile images
+- **Robust validation and error handling**
+- **Logging and debugging utilities**
+
+---
+
+## Key Implementation Details
+
+### 1. Driver & Vehicle Onboarding
+
+- Drivers register and provide vehicle details (type, brand, model, number plate, color, etc.)
+- Vehicle types supported: `mini car`, `ac car`, `bike`, `auto`, `tourbus`
+- Tourbus drivers are handled specially for group rides
+
+### 2. Ride Management
+
+- Drivers fetch available rides based on their vehicle type
+- For `tourbus` drivers, all group rides are shown (no group filter for others)
+- Rides can be accepted, rejected, cancelled, or completed
+- Ride status transitions are strictly validated
+
+### 3. Group Rides
+
+- Group rides are supported for tourbus drivers
+- Group rides require a `groupAdmin` and `isGroupRide: true`
+- Non-tourbus drivers see only non-group rides
+
+### 4. Chat System
+
+- Real-time chat between drivers and passengers
+- Group chat for group rides
+- Socket event validation using Joi schemas
+
+### 5. Validation & Error Handling
+
+- All API endpoints use Joi schemas for request validation
+- Centralized error handling with custom `AppError` utility
+- Consistent error responses for client and server errors
+
+### 6. File Uploads
+
+- Drivers can upload profile images and vehicle documents
+- Uploaded files are stored in organized public folders
+
+### 7. OTP Verification
+
+- OTP service for phone number verification during onboarding
+- Secure and time-limited OTP codes
+
+### 8. Logging
+
+- Application logs for debugging and monitoring
+- Errors are logged with stack traces and timestamps
+
+---
 
 ## Project Structure
 
@@ -58,6 +114,22 @@ smart-ride-backend/
 ## Validation
 
 - All endpoints use Joi schemas for request validation (see `src/validations/`).
+
+## Example Use Cases
+
+- **Tourbus Driver**: Registers, uploads documents, and sees all group rides available for tourbus. Can accept, reject, or complete group rides.
+- **Passenger**: Registers, books a ride (individual or group), chats with driver, and receives OTP for verification.
+- **Driver (non-tourbus)**: Registers, uploads vehicle details, and sees only non-group rides matching their vehicle type.
+
+## Technologies Used
+
+- Node.js, Express.js
+- MongoDB (Mongoose ODM)
+- Joi (validation)
+- Socket.io (real-time chat)
+- Multer (file uploads)
+- Twilio (OTP service)
+- Winston or similar (logging)
 
 ## Getting Started
 
