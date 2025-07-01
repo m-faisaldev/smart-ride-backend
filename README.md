@@ -131,7 +131,7 @@ smart-ride-backend/
 - Socket.io (real-time chat)
 - Multer (file uploads)
 - Twilio (OTP service)
-- Winston or similar (logging)
+- Winston (logging)
 
 ## Getting Started
 
