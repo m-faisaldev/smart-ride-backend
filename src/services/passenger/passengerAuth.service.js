@@ -28,7 +28,8 @@ const generateToken = (user) => {
 const generateContextToken = (phoneNumber) => {
   const payload = { phoneNumber };
   const secret = process.env.JWT_RESET_SECRET || process.env.JWT_SECRET;
-  return jwt.sign(payload, secret, { expiresIn: '10m' });
+
+  return jwt.sign(payload, secret, { expiresIn: JWT_EXPIRES_IN || '10m' });
 };
 
 // REGISTER FLOW
