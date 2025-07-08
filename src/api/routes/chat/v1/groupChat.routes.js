@@ -13,5 +13,7 @@ router.post('/join/:groupId', controller.joinGroup);
 router.post('/messages/:groupId', controller.sendMessage);
 router.post('/bookRide/:groupId', controller.bookGroupRide);
 router.get('/messages/:groupId', controller.getGroupMessages);
+router.post('/leave/:groupId', controller.leaveGroup);
+router.delete('/:groupId', controller.deleteGroup);
 
 module.exports = router;

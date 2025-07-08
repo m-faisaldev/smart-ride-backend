@@ -27,7 +27,9 @@ const protect = async (req, res, next) => {
 };
 
 const protectDriverOnly = async (req, res, next) => {
-  protect(req, res, () => {
+  protect(req, res, (err) => {
+    if (err) return next(err);
+    if (!req.user) return;
     if (req.user.userType !== 'driver') {
       logger.warn('Access denied. Driver role required.');
       return next(new AppError('Access denied. Driver role required.', 403));
@@ -37,7 +39,9 @@ const protectDriverOnly = async (req, res, next) => {
 };
 
 const protectPassengerOnly = async (req, res, next) => {
-  protect(req, res, () => {
+  protect(req, res, (err) => {
+    if (err) return next(err);
+    if (!req.user) return;
     if (req.user.userType !== 'passenger') {
       logger.warn('Access denied. Passenger role required.');
       return next(new AppError('Access denied. Passenger role required.', 403));

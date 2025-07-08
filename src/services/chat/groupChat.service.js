@@ -108,6 +108,48 @@ class GroupChatService {
       throw error;
     }
   }
+
+  async leaveGroup(groupId, userId) {
+    try {
+      const group = await PassengerGroup.findById(groupId);
+      if (!group) {
+        throw new AppError('Group not found', 404);
+      }
+      if (group.creator.toString() === userId.toString()) {
+        throw new AppError('Group admin cannot leave the group', 403);
+      }
+      const initialLength = group.members.length;
+      group.members = group.members.filter(
+        (member) => member.toString() !== userId.toString(),
+      );
+      if (group.members.length === initialLength) {
+        throw new AppError('User is not a member of the group', 400);
+      }
+      await group.save();
+      return group;
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError(error.message || 'Failed to leave group', 500);
+    }
+  }
+
+  async deleteGroup(groupId, userId) {
+    try {
+      const group = await PassengerGroup.findById(groupId);
+      if (!group) {
+        throw new AppError('Group not found', 404);
+      }
+      if (group.creator.toString() !== userId.toString()) {
+        throw new AppError('Only group admin can delete the group', 403);
+      }
+      await GroupMessage.deleteMany({ group: groupId });
+      await PassengerGroup.findByIdAndDelete(groupId);
+      return { success: true };
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError(error.message || 'Failed to delete group', 500);
+    }
+  }
 }
 
 module.exports = new GroupChatService();
