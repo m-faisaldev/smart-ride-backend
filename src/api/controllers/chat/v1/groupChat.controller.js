@@ -146,6 +146,38 @@ const getGroupMessages = async (req, res, next) => {
   }
 };
 
+const leaveGroup = async (req, res, next) => {
+  try {
+    const { groupId } = req.params;
+    const userId = req.user.id;
+    const group = await groupChatService.leaveGroup(groupId, userId);
+    res.status(200).json({
+      success: true,
+      message: 'Left group successfully',
+      data: group,
+    });
+  } catch (error) {
+    logger.error('Failed to leave group:', error);
+    next(error);
+  }
+};
+
+const deleteGroup = async (req, res, next) => {
+  try {
+    const { groupId } = req.params;
+    const userId = req.user.id;
+    const result = await groupChatService.deleteGroup(groupId, userId);
+    res.status(200).json({
+      success: true,
+      message: 'Group deleted successfully',
+      data: result,
+    });
+  } catch (error) {
+    logger.error('Failed to delete group:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   createGroup,
   getAllGroups,
@@ -153,4 +185,6 @@ module.exports = {
   sendMessage,
   bookGroupRide,
   getGroupMessages,
+  leaveGroup,
+  deleteGroup,
 };
