@@ -16,7 +16,7 @@ const driverAuthController = {
       const jwt = require('jsonwebtoken');
       const phoneContextToken = jwt.sign(
         { phoneNumber },
-        process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+        process.env.JWT_SECRET,
         { expiresIn: '1m' },
       );
       res.status(StatusCodes.OK).json({
@@ -48,7 +48,7 @@ const driverAuthController = {
       try {
         const decoded = require('jsonwebtoken').verify(
           phoneContextToken,
-          process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+          process.env.JWT_SECRET,
         );
         phoneNumber = decoded.phoneNumber;
       } catch (err) {
@@ -74,11 +74,9 @@ const driverAuthController = {
         });
       }
       const jwt = require('jsonwebtoken');
-      const resetToken = jwt.sign(
-        { phoneNumber },
-        process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
-        { expiresIn: '10m' },
-      );
+      const resetToken = jwt.sign({ phoneNumber }, process.env.JWT_SECRET, {
+        expiresIn: '10m',
+      });
       res.status(StatusCodes.OK).json({
         success: true,
         message: 'OTP verified. Use this token to set password.',
@@ -107,7 +105,7 @@ const driverAuthController = {
       try {
         const decoded = require('jsonwebtoken').verify(
           resetToken,
-          process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+          process.env.JWT_SECRET,
         );
         phoneNumber = decoded.phoneNumber;
       } catch (err) {
@@ -171,7 +169,7 @@ const driverAuthController = {
       const jwt = require('jsonwebtoken');
       const phoneContextToken = jwt.sign(
         { phoneNumber },
-        process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+        process.env.JWT_SECRET,
         { expiresIn: '1m' },
       );
       res.status(StatusCodes.OK).json({
@@ -202,7 +200,7 @@ const driverAuthController = {
       try {
         const decoded = require('jsonwebtoken').verify(
           phoneContextToken,
-          process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+          process.env.JWT_SECRET,
         );
         phoneNumber = decoded.phoneNumber;
       } catch (err) {
@@ -228,11 +226,9 @@ const driverAuthController = {
         });
       }
       const jwt = require('jsonwebtoken');
-      const resetToken = jwt.sign(
-        { phoneNumber },
-        process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
-        { expiresIn: '10m' },
-      );
+      const resetToken = jwt.sign({ phoneNumber }, process.env.JWT_SECRET, {
+        expiresIn: '10m',
+      });
       res.status(StatusCodes.OK).json({
         success: true,
         message: 'Phone number verified successfully',
@@ -260,7 +256,7 @@ const driverAuthController = {
       try {
         const decoded = require('jsonwebtoken').verify(
           resetToken,
-          process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+          process.env.JWT_SECRET,
         );
         phoneNumber = decoded.phoneNumber;
       } catch (err) {
@@ -385,7 +381,7 @@ const driverAuthController = {
       const jwt = require('jsonwebtoken');
       const phoneContextToken = jwt.sign(
         { phoneNumber },
-        process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+        process.env.JWT_SECRET,
         { expiresIn: '1m' },
       );
       res.status(StatusCodes.OK).json({

@@ -4,7 +4,7 @@ const Verification = require('../../models/verification.model');
 const { hashPassword, comparePassword } = require('../../utils/auth');
 const AppError = require('../../utils/AppError');
 const { generateOtp, compareOtp } = require('../../services/otp.service');
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 
 const generateToken = (user) => {
   return jwt.sign(
