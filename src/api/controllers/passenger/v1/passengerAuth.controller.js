@@ -41,7 +41,7 @@ const passengerAuthController = {
       try {
         const decoded = require('jsonwebtoken').verify(
           contextToken,
-          process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+          process.env.JWT_SECRET,
         );
         phoneNumber = decoded.phoneNumber;
       } catch (err) {
@@ -89,7 +89,7 @@ const passengerAuthController = {
       try {
         const decoded = require('jsonwebtoken').verify(
           contextToken,
-          process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+          process.env.JWT_SECRET,
         );
         phoneNumber = decoded.phoneNumber;
       } catch (err) {
@@ -164,7 +164,7 @@ const passengerAuthController = {
       try {
         const decoded = require('jsonwebtoken').verify(
           contextToken,
-          process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+          process.env.JWT_SECRET,
         );
         phoneNumber = decoded.phoneNumber;
       } catch (err) {
@@ -213,7 +213,7 @@ const passengerAuthController = {
       try {
         const decoded = require('jsonwebtoken').verify(
           contextToken,
-          process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
+          process.env.JWT_SECRET,
         );
         phoneNumber = decoded.phoneNumber;
       } catch (err) {

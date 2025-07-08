@@ -9,7 +9,7 @@ const {
   compareOtp,
   // sendOtp,
 } = require('../../services/otp.service');
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -27,9 +27,9 @@ const generateToken = (user) => {
 
 const generateContextToken = (phoneNumber) => {
   const payload = { phoneNumber };
-  const secret = process.env.JWT_RESET_SECRET || process.env.JWT_SECRET;
+  const secret = process.env.JWT_SECRET;
 
-  return jwt.sign(payload, secret, { expiresIn: JWT_EXPIRES_IN || '10m' });
+  return jwt.sign(payload, secret, { expiresIn: JWT_EXPIRES_IN });
 };
 
 // REGISTER FLOW

@@ -9,10 +9,7 @@ const verifyResetToken = (req, res, next) => {
         .status(401)
         .json({ success: false, message: 'No token provided' });
     }
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_RESET_SECRET || process.env.JWT_SECRET,
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.resetUser = decoded;
     next();
   } catch (error) {
