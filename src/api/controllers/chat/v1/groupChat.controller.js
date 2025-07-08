@@ -95,6 +95,9 @@ const bookGroupRide = async (req, res, next) => {
     if (group.creator._id.toString() !== userId)
       throw new AppError('Only group admin can book a ride', 403);
 
+    // Default vehicleType to 'tourbus' for group admin booking if not provided
+    const rideVehicleType = vehicleType || 'tourbus';
+
     const ride = await Ride.create({
       passenger: userId,
       group: groupId,
@@ -103,7 +106,7 @@ const bookGroupRide = async (req, res, next) => {
       pickUpLocation,
       dropOffLocation,
       fareAmount,
-      vehicleType,
+      vehicleType: rideVehicleType,
       numberOfPassengers,
       dateOfDeparture,
       timeOfDeparture,

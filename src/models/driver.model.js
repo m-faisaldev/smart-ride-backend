@@ -29,7 +29,7 @@ const driverSchema = new mongoose.Schema(
     vehicle: {
       type: {
         type: String,
-        enum: ['car', 'bike', 'auto', 'ac', 'tourbus'],
+        enum: ['mini car', 'ac car', 'bike', 'auto', 'tourbus'],
       },
       brand: String,
       name: String,

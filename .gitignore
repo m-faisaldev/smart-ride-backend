@@ -4,7 +4,7 @@ package-lock.json
 yarn.lock
 
 #assets
-public
+public/
 
 # Environment variables
 .env

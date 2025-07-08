@@ -10,31 +10,19 @@ const fetchAvailableRides = async (driverId) => {
     }
 
     const driverVehicleType = driver.vehicle.type;
-
-    const vehicleTypeMapping = {
-      car: 'mini car',
-      ac: 'AC',
-      bike: 'bike',
-      auto: 'auto',
-    };
+    if (
+      !['mini car', 'ac car', 'bike', 'auto', 'tourbus'].includes(
+        driverVehicleType,
+      )
+    ) {
+      throw new AppError('Invalid vehicle type', 400);
+    }
 
     let query = {
       status: 'pending',
       driver: null,
+      vehicleType: driverVehicleType,
     };
-
-    if (driverVehicleType === 'tourbus') {
-      query.isGroupRide = true;
-      query.groupAdmin = { $exists: true, $ne: null };
-      query.vehicleType = 'tourbus';
-    } else {
-      const passengerVehicleType = vehicleTypeMapping[driverVehicleType];
-      if (!passengerVehicleType) {
-        throw new AppError('Invalid vehicle type mapping', 400);
-      }
-      query.vehicleType = passengerVehicleType;
-      query.isGroupRide = { $ne: true };
-    }
 
     return await Ride.find(query);
   } catch (error) {

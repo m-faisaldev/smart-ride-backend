@@ -79,7 +79,9 @@ smart-ride-backend/
 │   ├── api/
 │   │   ├── controllers/   # Route controllers (chat, driver, passenger)
 │   │   ├── routes/        # API route definitions
-│   │   └── config/        # Configuration files (db, socket, twillio)
+
+
+│   │── config/        # Configuration files (db, socket, twillio)
 │   ├── middlewares/       # Express middlewares (auth, validation, upload, etc.)
 │   ├── models/            # Mongoose models (driver, passenger, ride, chat, etc.)
 │   ├── services/          # Business logic (driver, passenger, chat, OTP, etc.)
@@ -129,7 +131,7 @@ smart-ride-backend/
 - Socket.io (real-time chat)
 - Multer (file uploads)
 - Twilio (OTP service)
-- Winston or similar (logging)
+- Winston (logging)
 
 ## Getting Started
 

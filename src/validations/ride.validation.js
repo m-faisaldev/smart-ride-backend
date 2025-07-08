@@ -13,13 +13,15 @@ const locationSchema = Joi.object({
 
 const createRideRequestSchema = Joi.object({
   vehicleType: Joi.string()
-    .valid('mini car', 'AC', 'bike', 'auto')
+    .valid('mini car', 'ac car', 'bike', 'auto', 'tourbus')
     .required()
     .messages({
       'any.required': 'Vehicle type is required',
       'any.only':
-        'Invalid vehicle type. Must be one of: mini car, AC, bike, auto',
+        'Invalid vehicle type. Must be one of: mini car, ac car, bike, auto, tourbus',
     }),
+
+  isGroupRide: Joi.boolean().optional(),
 
   pickUpLocation: locationSchema.required().messages({
     'any.required': 'Pick up location is required',
@@ -40,7 +42,15 @@ const createRideRequestSchema = Joi.object({
     'any.required': 'Fare amount is required',
     'number.min': 'Fare amount must be greater than 0',
   }),
-});
+}).custom((value, helpers) => {
+  // Only allow 'tourbus' if isGroupRide is true
+  if (value.vehicleType === 'tourbus' && !value.isGroupRide) {
+    return helpers.error('any.invalid', {
+      message: 'tourbus is only allowed for group rides',
+    });
+  }
+  return value;
+}, 'Group ride vehicle type validation');
 
 const acceptRideSchema = Joi.object({
   fareAmountDriver: Joi.number().min(0).required().messages({
@@ -52,9 +62,7 @@ const acceptRideSchema = Joi.object({
 const availableRidesQuerySchema = Joi.object({
   limit: Joi.number().integer().min(1).max(100).default(10),
   page: Joi.number().integer().min(1).default(1),
-  vehicleType: Joi.string()
-    .valid('CAR', 'BIKE', 'AUTO', 'AC', 'TOURBUS')
-    .uppercase(),
+  vehicleType: Joi.string().valid('mini car', 'ac car', 'bike', 'auto'),
   maxDistance: Joi.number().min(0).default(100000),
 }).default({});
 
