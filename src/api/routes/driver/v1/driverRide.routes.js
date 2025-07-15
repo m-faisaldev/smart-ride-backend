@@ -27,12 +27,7 @@ router.get(
   validateQuery(availableRidesQuerySchema),
   driverRideController.getAvailableRides,
 );
-router.post(
-  '/accept/:rideId',
-  validateParams(rideIdParamSchema),
-  validateBody(acceptRideSchema),
-  driverRideController.acceptRide,
-);
+
 router.get(
   '/history',
   validateQuery(availableRidesQuerySchema),
@@ -66,6 +61,12 @@ router.post(
   '/reject/:rideId',
   validateParams(rideIdParamSchema),
   driverRideController.rejectRide,
+);
+
+router.post(
+  '/offer/:rideId',
+  validateParams(rideIdParamSchema),
+  driverRideController.offerRide,
 );
 
 module.exports = router;

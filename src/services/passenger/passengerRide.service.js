@@ -1,5 +1,8 @@
 const Ride = require('../../models/ride.model');
 const AppError = require('../../utils/AppError');
+const OfferedRide = require('../../models/offeredRide.model');
+const driverRideService = require('../driver/driverRide.service');
+const axios = require('axios');
 
 const createRide = async (passengerId, rideData) => {
   const ride = new Ride({
@@ -21,15 +24,24 @@ const fetchActiveRides = async (passengerId) => {
   }).sort({ createdAt: -1 });
 };
 
+const getOffersForRide = async (rideId) => {
+  return OfferedRide.find({ rideId }).populate('driverId', 'name phoneNumber');
+};
+
+const acceptOffer = async (passengerId, rideId, offerId) => {
+  const ride = await Ride.findById(rideId);
+  if (!ride || ride.passenger.toString() !== passengerId.toString()) {
+    throw new AppError('Unauthorized or invalid ride', 403);
+  }
+  // Use driverRideService to update ride and clean up offers
+  return driverRideService.acceptOffer(rideId, offerId);
+};
+
 const acceptRideOffer = async (passengerId, rideId) => {
   const ride = await Ride.findById(rideId);
 
   if (!ride || ride.passenger.toString() !== passengerId.toString()) {
     throw new Error('Unauthorized or invalid ride');
-  }
-
-  if (ride.status !== 'offered') {
-    throw new Error('Ride is not in an offered state');
   }
 
   ride.status = 'accepted';
@@ -159,6 +171,8 @@ const getRideDetails = async (passengerId, rideId) => {
 module.exports = {
   createRide,
   fetchActiveRides,
+  getOffersForRide,
+  acceptOffer,
   acceptRideOffer,
   declineRideOffer,
   cancelRide,

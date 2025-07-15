@@ -55,5 +55,16 @@ router.post(
   validateParams(rideIdParamSchema),
   controller.completeRideWithReview,
 );
+router.get(
+  '/offers/:rideId',
+  validateParams(rideIdParamSchema),
+  controller.getOffersForRide,
+);
+
+router.post(
+  '/accept-offer/:rideId/:offerId',
+  validateParams(rideIdParamSchema),
+  controller.acceptOffer,
+);
 
 module.exports = router;

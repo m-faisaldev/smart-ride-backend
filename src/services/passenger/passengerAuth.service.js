@@ -32,9 +32,7 @@ const generateContextToken = (phoneNumber) => {
   return jwt.sign(payload, secret, { expiresIn: JWT_EXPIRES_IN });
 };
 
-// REGISTER FLOW
 const sendCodeForRegister = async (phoneNumber) => {
-  // Check if passenger already exists
   const existing = await Passenger.findOne({ phoneNumber });
   if (existing) throw new AppError('Passenger already exists', 400);
 
@@ -102,9 +100,7 @@ const setPasswordForRegister = async (
   return { passenger, token: generateToken(passenger) };
 };
 
-// FORGOT PASSWORD FLOW
 const sendCodeForForgotPassword = async (phoneNumber) => {
-  // Check if passenger exists
   const passenger = await Passenger.findOne({ phoneNumber });
   if (!passenger) throw new AppError('Passenger not found', 404);
 
@@ -168,7 +164,6 @@ const resetPasswordWithContextToken = async (
   return true;
 };
 
-// EXISTING FUNCTIONS
 const login = async (phoneNumber, password) => {
   const passenger = await Passenger.findOne({ phoneNumber }).select(
     '+password',

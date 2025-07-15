@@ -1,13 +1,59 @@
 const passengerRideService = require('../../../../services/passenger/passengerRide.service');
 const AppError = require('../../../../utils/AppError');
 const logger = require('../../../../utils/logger');
+const axios = require('axios');
 
 const createRideRequest = async (req, res, next) => {
   try {
-    const ride = await passengerRideService.createRide(req.user._id, req.body);
-    res.status(201).json({ success: true, message: 'Ride created', ride });
+    const rideData = req.body;
+    const userId = req.user._id;
+
+    // Validate input
+    if (
+      !rideData.pickUpLocation ||
+      !rideData.dropOffLocation ||
+      !rideData.passenger_count
+    ) {
+      return next(
+        new AppError(
+          'Pickup location, dropoff location, and passenger count are required',
+          400,
+        ),
+      );
+    }
+
+    const recommenderUrl = 'http://127.0.0.1:5000/getSuggestedFare';
+    const { pickUpLocation, dropOffLocation, passenger_count } = rideData;
+
+    try {
+      const response = await axios.post(recommenderUrl, {
+        pickup: {
+          lat: pickUpLocation.coordinates[1],
+          lng: pickUpLocation.coordinates[0],
+        },
+        dropoff: {
+          lat: dropOffLocation.coordinates[1],
+          lng: dropOffLocation.coordinates[0],
+        },
+        passenger_count,
+      });
+
+      rideData.suggestedFare = response.data.suggested_fare;
+    } catch (error) {
+      logger.error('Error calling recommender API:', error.message);
+      return next(new AppError('Failed to fetch suggested fare', 500));
+    }
+
+    const ride = await passengerRideService.createRide(userId, rideData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Ride created',
+      suggestedFare: rideData.suggestedFare,
+      ride,
+    });
   } catch (err) {
-    logger.error('Error creating ride:', err);
+    logger.error('Error creating ride:', err.message);
     next(new AppError('Failed to create ride', 500));
   }
 };
@@ -19,6 +65,32 @@ const getMyActiveRides = async (req, res, next) => {
   } catch (err) {
     logger.error('Error fetching active rides:', err);
     next(new AppError('Failed to fetch active rides', 500));
+  }
+};
+
+const getOffersForRide = async (req, res, next) => {
+  try {
+    const { rideId } = req.params;
+    const offers = await passengerRideService.getOffersForRide(rideId);
+    res.status(200).json({ success: true, offers });
+  } catch (err) {
+    logger.error('Error fetching offers:', err);
+    next(new AppError('Failed to fetch offers', 500));
+  }
+};
+
+const acceptOffer = async (req, res, next) => {
+  try {
+    const { rideId, offerId } = req.params;
+    const ride = await passengerRideService.acceptOffer(
+      req.user._id,
+      rideId,
+      offerId,
+    );
+    res.status(200).json({ success: true, message: 'Offer accepted', ride });
+  } catch (err) {
+    logger.error('Error accepting offer:', err);
+    next(new AppError('Failed to accept offer', 400));
   }
 };
 
@@ -105,7 +177,7 @@ const getRideDetails = async (req, res, next) => {
   try {
     const { rideId } = req.params;
     const passengerId = req.user._id;
-    
+
     const ride = await passengerRideService.getRideDetails(passengerId, rideId);
     res.status(200).json({ success: true, ride });
   } catch (err) {
@@ -117,6 +189,8 @@ const getRideDetails = async (req, res, next) => {
 module.exports = {
   createRideRequest,
   getMyActiveRides,
+  getOffersForRide,
+  acceptOffer,
   acceptDriverOffer,
   declineRideOffer,
   cancelRideRequest,

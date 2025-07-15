@@ -1,5 +1,6 @@
 const Ride = require('../../models/ride.model');
 const Driver = require('../../models/driver.model');
+const OfferedRide = require('../../models/offeredRide.model');
 const AppError = require('../../utils/AppError');
 
 const fetchAvailableRides = async (driverId) => {
@@ -18,9 +19,9 @@ const fetchAvailableRides = async (driverId) => {
       throw new AppError('Invalid vehicle type', 400);
     }
 
+    // Show all rides with status 'pending' (not accepted)
     let query = {
       status: 'pending',
-      driver: null,
       vehicleType: driverVehicleType,
     };
 
@@ -28,6 +29,34 @@ const fetchAvailableRides = async (driverId) => {
   } catch (error) {
     if (error instanceof AppError) throw error;
     throw new AppError('Failed to fetch available rides', 500);
+  }
+};
+
+const offerRide = async (rideId, driverId, driverOfferedAmount) => {
+  try {
+    const ride = await Ride.findById(rideId);
+    if (!ride) {
+      throw new AppError('Ride not found', 404);
+    }
+    if (ride.status !== 'pending') {
+      throw new AppError('Ride is not available for offers', 400);
+    }
+
+    const existingOffer = await OfferedRide.findOne({ rideId, driverId });
+    if (existingOffer) {
+      throw new AppError('You have already offered for this ride', 400);
+    }
+    // Create an offer
+    const offer = await OfferedRide.create({
+      rideId,
+      driverId,
+      driverOfferedAmount,
+      rideSnapshot: ride.toObject(),
+    });
+    return offer;
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError('Failed to offer ride', 500);
   }
 };
 
@@ -49,30 +78,6 @@ const getRideHistory = async (driverId) => {
     }).sort({ createdAt: -1 });
   } catch (error) {
     throw new AppError('Failed to fetch ride history', 500);
-  }
-};
-
-const acceptRide = async (rideId, driverId, fareAmountDriver) => {
-  try {
-    const ride = await Ride.findOne({
-      _id: rideId,
-      status: 'pending',
-      driver: null,
-    });
-
-    if (!ride) {
-      throw new AppError('Ride not available or already taken', 400);
-    }
-
-    ride.status = 'offered';
-    ride.driver = driverId;
-    ride.fareAmountDriver = fareAmountDriver;
-    await ride.save();
-
-    return ride;
-  } catch (error) {
-    if (error instanceof AppError) throw error;
-    throw new AppError('Failed to accept ride', 500);
   }
 };
 
@@ -223,8 +228,8 @@ const cancelOfferedRide = async (rideId, driverId) => {
 
 module.exports = {
   fetchAvailableRides,
+  offerRide,
   getRideHistory,
-  acceptRide,
   rejectRide,
   updateRideStatus,
   cancelRide,

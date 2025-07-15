@@ -57,8 +57,8 @@ const rideSchema = new mongoose.Schema({
     type: String,
     enum: [
       'pending',
-      'accepted',
       'offered',
+      'accepted',
       'rejected',
       'arrived',
       'started',
@@ -98,6 +98,11 @@ const rideSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Passenger',
     default: null,
+  },
+  passenger_count: {
+    type: Number,
+    required: true,
+    min: 1,
   },
 });
 

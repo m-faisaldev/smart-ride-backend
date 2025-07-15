@@ -54,35 +54,26 @@ const getRideHistory = async (req, res, next) => {
   }
 };
 
-const acceptRide = async (req, res, next) => {
+const offerRide = async (req, res, next) => {
   try {
     const { rideId } = req.params;
-    const { fareAmountDriver } = req.body;
+    const { driverOfferedAmount } = req.body;
     const driverId = req.user._id;
-
-    const ride = await Ride.findById(rideId);
-    if (!ride || ride.status !== 'pending') {
-      return next(new AppError('Ride not available', StatusCodes.NOT_FOUND));
-    }
-
-    if (ride.expiresAt <= new Date()) {
-      ride.status = 'expired';
-      await ride.save();
-      return next(new AppError('Ride has expired', StatusCodes.GONE));
-    }
-
-    const updatedRide = await rideService.acceptRide(
+    const offer = await rideService.offerRide(
       rideId,
       driverId,
-      fareAmountDriver,
+      driverOfferedAmount,
     );
     res
       .status(StatusCodes.OK)
-      .json({ success: true, message: 'Ride accepted', ride: updatedRide });
+      .json({ success: true, message: 'Offer created', offer });
   } catch (error) {
-    logger.error('Failed to accept ride:', error);
+    logger.error('Failed to offer ride:', error);
     next(
-      new AppError('Failed to accept ride', StatusCodes.INTERNAL_SERVER_ERROR),
+      new AppError(
+        error.message || 'Failed to offer ride',
+        StatusCodes.INTERNAL_SERVER_ERROR,
+      ),
     );
   }
 };
@@ -228,7 +219,7 @@ const rejectOfferedRide = async (req, res, next) => {
 module.exports = {
   getAvailableRides,
   getRideHistory,
-  acceptRide,
+  offerRide,
   rejectRide,
   arriveAtLocation,
   startRide,
